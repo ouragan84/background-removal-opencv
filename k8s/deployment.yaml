@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: background-removal-deployment
+spec:
+  replicas: 2  # You can change this number to scale up or down
+  selector:
+    matchLabels:
+      app: background-removal
+  template:
+    metadata:
+      labels:
+        app: background-removal
+    spec:
+      containers:
+      - name: background-removal
+        image: ouragan84/background-removal-opencv:latest
+        ports:
+        - containerPort: 8000
