@@ -1,0 +1,15 @@
+---
+- name: Remove application from Kubernetes
+  hosts: localhost
+  tasks:
+    - name: Delete Kubernetes deployment
+      community.kubernetes.k8s:
+        kubeconfig: "{{ kubeconfig_path }}"
+        state: absent
+        src: "./../k8s/deployment.yaml"
+
+    - name: Delete Kubernetes service
+      community.kubernetes.k8s:
+        kubeconfig: "{{ kubeconfig_path }}"
+        state: absent
+        src: "./../k8s/service.yaml"

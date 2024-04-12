@@ -59,3 +59,18 @@ kubectl delete service background-removal-service
 ```
 minikube stop
 ```
+
+# Ansible Playbook
+
+## To run the playbook:
+
+```
+ansible-playbook ansible/deploy_app.yml -e kubeconfig_path=~/.kube/config
+```
+
+## To stop:
+
+```
+ansible-playbook ansible/stop_app.yml -e kubeconfig_path=~/.kube/config
+```
+
