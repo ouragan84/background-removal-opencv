@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Image Upload and Processing</title>
+    <style>
+        img {
+            max-width: 500px;
+            max-height: 500px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Upload an Image</h1>
+    <input type="file" id="imageInput" accept=".jpg, .jpeg, .png" onchange="previewImage();">
+    <button onclick="loadExample('static/Pills1.jpg')">Example 1</button>
+    <button onclick="loadExample('static/Pills2.jpg')">Example 2</button>
+    <img id="preview" src="#" alt="Image preview" style="display: none;"/>
+    <button onclick="uploadImage()">Upload</button>
+    
+    <div id="resultSection" style="display: none;">
+        <h2>Processed Image</h2>
+        <img id="resultImage" src="" alt="Processed Image">
+        <a id="downloadLink" href="#" download="processed.png">Download Processed Image</a>
+        <h2>Mask</h2>
+        <img id="maskImage" src="" alt="Image Mask">
+    </div>
+    
+
+    <script>
+
+function previewImage() {
+            const input = document.getElementById('imageInput');
+            const preview = document.getElementById('preview');
+            const file = input.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            };
+
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function loadExample(imagePath) {
+            const preview = document.getElementById('preview');
+            preview.src = imagePath;
+            preview.style.display = 'block';
+            // Reset the file input
+            document.getElementById('imageInput').value = '';
+        }
+
+        async function uploadImage() {
+            const preview = document.getElementById('preview');
+            if (!preview.src || preview.src === window.location.href) {
+                alert('Please select or load an image first!');
+                return;
+            }
+
+            const formData = new FormData();
+            const blob = await fetch(preview.src).then(r => r.blob());
+            formData.append('file', blob, 'image.jpg');
+
+            try {
+                const response = await fetch('/upload/', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server returned ${response.status}`);
+                }
+
+                const data = await response.json();
+                const resultImageUrl = 'data:image/png;base64,' + data.image;
+                const maskImageUrl = 'data:image/png;base64,' + data.mask;
+    
+                const resultSection = document.getElementById('resultSection');
+                const resultImage = document.getElementById('resultImage');
+                const downloadLink = document.getElementById('downloadLink');
+    
+                resultImage.src = resultImageUrl;
+                downloadLink.href = resultImageUrl;
+    
+                // Display the mask
+                const maskImage = document.getElementById('maskImage');
+                maskImage.src = maskImageUrl;
+    
+                resultSection.style.display = 'block';
+            } catch (error) {
+                alert(`Failed to upload and process image: ${error}`);
+            }
+        }
+        
+    </script>
+    
+</body>
+</html>
